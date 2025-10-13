@@ -3,10 +3,10 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-generic-list',
   imports: [],
-  templateUrl: './generic-list.html',
-  styleUrl: './generic-list.css'
+  templateUrl: './generic-list.component.html',
+  styleUrl: './generic-list.component.css'
 })
-export class GenericList {
+export class GenericListComponent {
   @Input({required: true})
   elements: any;
 }

@@ -1,17 +1,7 @@
 <app-menu />
 
-<button mat-flat-button class="primary">Primary</button>
-<button mat-flat-button class="secondary">Secondary</button>
-<button mat-flat-button class="warn">Warn</button>
-
 <div class="container">
 
-    <h2>Upcoming releases</h2>
-
-    <app-movies-list [movies]="upcomingReleases" />
-
-    <h2>In theaters</h2>
-
-    <app-movies-list [movies]="inTheaters" />
+    <router-outlet />
 
 </div>

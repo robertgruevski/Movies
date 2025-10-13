@@ -1,11 +1,21 @@
 .movies-container {
-    border: 1px solid black;
-    margin-bottom: 1rem;
-    padding: 1rem;
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
 }
 
-h2 { 
-    color: green;
+.movie-container {
+    text-align: center;
+
+}
+
+p {
+    max-width: 225px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+button {
+    margin-left: 1rem;
 }
