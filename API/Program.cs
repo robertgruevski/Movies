@@ -1,3 +1,5 @@
+using API;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -6,6 +8,11 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddOutputCache(options =>
+{
+    options.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(15);
+});
+builder.Services.AddSingleton<IRepository, InMemoryRepository>();
 
 var app = builder.Build();
 
@@ -14,6 +21,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseOutputCache();
 
 app.UseHttpsRedirection();
 
