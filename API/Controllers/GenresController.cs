@@ -1,8 +1,14 @@
 using System.Threading.Tasks;
+using API.Data;
+using API.DTOs;
 using API.Entities;
+using API.Utilities;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -10,42 +16,51 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class GenresController : ControllerBase
 {
-    private readonly IRepository repository;
     private readonly IOutputCacheStore outputCacheStore;
+    private readonly ApplicationDbContext context;
+    private readonly IMapper mapper;
+    private const string cacheTag = "genres";
 
-    public GenresController(IRepository repository, IOutputCacheStore outputCacheStore)
+    public GenresController(IOutputCacheStore outputCacheStore, ApplicationDbContext context, IMapper mapper)
     {
-        this.repository = repository;
+
         this.outputCacheStore = outputCacheStore;
+        this.context = context;
+        this.mapper = mapper;
     }
 
     [HttpGet]
-    [OutputCache(Tags = ["genres"])]
-    public ActionResult<List<Genre>> Get()
+    [OutputCache(Tags = [cacheTag])]
+    public async Task<ActionResult<List<GenreDTO>>> Get([FromQuery] PaginationDTO pagination)
     {
-        var genres = repository.GetAllGenres();
-        return genres;
+        var queryable = context.Genres;
+        await HttpContext.InsertPaginationParametersInHeader(queryable);
+        return await queryable
+            .OrderBy(g => g.Name)
+            .Paginate(pagination)
+            .ProjectTo<GenreDTO>(mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
-    [HttpGet("{id:int}")]
-    [OutputCache(Tags = ["genres"])]
-    public async Task<ActionResult<Genre>> Get(int id)
+    [HttpGet("{id:int}", Name = "GetGenreById")]
+    [OutputCache(Tags = [cacheTag])]
+    public Task<ActionResult<Genre>> Get(int id)
     {
-        var genre = await repository.GetById(id);
-
-        if (genre is null)
-        {
-            return NotFound();
-        }
-
-        return genre;
+        throw new NotImplementedException();
     }
 
     [HttpPost]
-    public ActionResult<Genre> Post([FromBody] Genre genre)
+    public async Task<CreatedAtRouteResult> Post([FromBody] GenreCreationDTO genreCreationDTO)
     {
+        var genre = mapper.Map<Genre>(genreCreationDTO);
         
-        return genre;
+        await context.Genres.AddAsync(genre);
+        await context.SaveChangesAsync();
+        
+        await outputCacheStore.EvictByTagAsync(cacheTag, default);
+        
+        var genreDto = mapper.Map<GenreDTO>(genre);
+        return CreatedAtRoute("GetGenreById", new { id = genre.Id }, genre);
     }
 
     [HttpPut]
@@ -57,6 +72,6 @@ public class GenresController : ControllerBase
     [HttpDelete]
     public void Delete()
     {
-        
+
     }
 }

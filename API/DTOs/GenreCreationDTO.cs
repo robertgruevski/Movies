@@ -1,12 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using API.Validations;
 
-namespace API.Entities;
+namespace API.DTOs;
 
-public class Genre
+public class GenreCreationDTO
 {
-    public int Id { get; set; }
-
     [Required]
     [StringLength(maximumLength: 50)]
     [FirstLetterUppercase]
