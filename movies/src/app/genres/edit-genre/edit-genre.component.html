@@ -1,3 +1,8 @@
 <h2>Edit Genre</h2>
 
-<app-genres-form (postForm)="saveChanges($event)" [model]="model"></app-genres-form>
+@if(model) {
+    <app-display-errors [errors]="errors" />
+    <app-genres-form (postForm)="saveChanges($event)" [model]="model" />
+} @else {
+    <app-loading />
+}

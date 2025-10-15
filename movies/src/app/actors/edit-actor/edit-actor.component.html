@@ -1,3 +1,8 @@
 <h2>Edit Actor</h2>
 
-<app-actors-form (postForm)="saveChanges($event)" [model]="model" />
+@if (model) {
+    <app-display-errors [errors]="errors" />
+    <app-actors-form (postForm)="saveChanges($event)" [model]="model" />
+} @else {
+    <app-loading />
+}

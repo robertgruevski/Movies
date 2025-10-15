@@ -1,5 +1,6 @@
 using API;
 using API.Data;
+using API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,8 +27,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddTransient<IFileStorage, AzureFileStorage>();
 
 var app = builder.Build();
 

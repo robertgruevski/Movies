@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { ActorsService } from '../actors.service';
+import { CRUD_SERVICE_TOKEN } from '../../shared/providers/providers';
+import { IndexEntitiesComponent } from "../../shared/components/index-entities/index-entities.component";
 
 @Component({
   selector: 'app-index-actors',
-  imports: [MatButtonModule, MatIconModule, RouterLink],
+  imports: [IndexEntitiesComponent],
   templateUrl: './index-actors.component.html',
-  styleUrl: './index-actors.component.css'
+  styleUrl: './index-actors.component.css',
+  providers: [{ provide: CRUD_SERVICE_TOKEN, useClass: ActorsService }],
 })
-export class IndexActorsComponent {
-
-}
+export class IndexActorsComponent {}
