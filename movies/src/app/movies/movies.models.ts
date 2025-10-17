@@ -11,6 +11,8 @@ export interface MovieDTO {
   genres?: GenreDTO[];
   theaters?: TheaterDTO[];
   actors?: ActorAutoCompleteDTO[];
+  averageRate: number;
+  userVote: number;
 }
 
 export interface MovieCreationDTO {

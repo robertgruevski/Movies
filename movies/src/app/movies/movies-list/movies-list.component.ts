@@ -5,10 +5,11 @@ import { GenericListComponent } from '../../shared/components/generic-list/gener
 import { RouterLink } from '@angular/router';
 import { MoviesService } from '../movies.service';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { AuthorizedComponent } from "../../security/authorized/authorized.component";
 
 @Component({
   selector: 'app-movies-list',
-  imports: [GenericListComponent, MatButtonModule, MatIconModule, RouterLink, SweetAlert2Module],
+  imports: [GenericListComponent, MatButtonModule, MatIconModule, RouterLink, SweetAlert2Module, AuthorizedComponent],
   templateUrl: './movies-list.component.html',
   styleUrl: './movies-list.component.css',
 })

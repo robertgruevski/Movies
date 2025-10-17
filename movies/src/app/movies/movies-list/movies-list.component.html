@@ -13,15 +13,20 @@
         <p>
           <a [routerLink]="['movie', movie.id]">{{movie.title}}</a>
         </p>
-        <div>
-          <a mat-flat-button [routerLink]="['movies/edit', movie.id]">
-            Edit
-          </a>
-          <button mat-flat-button type="button" class="warn" (confirm)="delete(movie.id)"
-            [swal]="{title: 'Confirmation', text: 'Are you sure you want to delete this movie?', showCancelButton: true}">
-            Delete
-          </button>
-        </div>
+
+        <app-authorized role="admin">
+            <ng-container authorized>
+              <div>
+                <a mat-flat-button [routerLink]="['movies/edit', movie.id]">
+                  Edit
+                </a>
+                <button mat-flat-button type="button" class="warn" (confirm)="delete(movie.id)"
+                  [swal]="{title: 'Confirmation', text: 'Are you sure you want to delete this movie?', showCancelButton: true}">
+                  Delete
+                </button>
+              </div>
+            </ng-container>
+        </app-authorized>
       </div>
       }
     </div>

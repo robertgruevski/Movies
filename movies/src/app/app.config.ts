@@ -9,8 +9,9 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app.routes';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { tokenInterceptorHttp } from './security/token-interceptor-http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,7 +30,7 @@ export const appConfig: ApplicationConfig = {
         monthYearA11yLabel: 'MMMM YYYY',
       },
     }),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([tokenInterceptorHttp])),
     importProvidersFrom([SweetAlert2Module.forRoot()]),
   ],
 };
