@@ -5,35 +5,40 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { PaginationDTO } from '../shared/models/PaginationDTO';
 import { buildQueryParams } from '../shared/functions/buildQueryParams';
+import { ICRUDService } from '../shared/interfaces/ICRUDService';
 
 @Injectable({
   providedIn: 'root',
 })
-export class GenresService {
+export class GenresService implements ICRUDService<GenreDTO, GenreCreationDTO> {
   private http = inject(HttpClient);
-  private baseUrl = environment.apiUrl;
+  private baseUrl = environment.apiUrl + '/genres';
 
   public getPaginated(pagination: PaginationDTO): Observable<HttpResponse<GenreDTO[]>> {
     let queryParams = buildQueryParams(pagination);
-    return this.http.get<GenreDTO[]>(this.baseUrl + '/genres', {
+    return this.http.get<GenreDTO[]>(this.baseUrl, {
       params: queryParams,
       observe: 'response',
     });
   }
 
   public getById(id: number): Observable<GenreDTO>{
-    return this.http.get<GenreDTO>(`${this.baseUrl}/genres/${id}`);
+    return this.http.get<GenreDTO>(`${this.baseUrl}/${id}`);
+  }
+
+  public getAll(): Observable<GenreDTO[]> {
+    return this.http.get<GenreDTO[]>(`${this.baseUrl}/all`)
   }
 
   public create(genre: GenreCreationDTO) {
-    return this.http.post(this.baseUrl + '/genres', genre);
+    return this.http.post(this.baseUrl, genre);
   }
 
   public update(id: number, genre: GenreCreationDTO) {
-    return this.http.put(`${this.baseUrl}/genres/${id}`, genre);
+    return this.http.put(`${this.baseUrl}/${id}`, genre);
   }
 
   public delete(id: number) {
-    return this.http.delete(`${this.baseUrl}/genres/${id}`)
+    return this.http.delete(`${this.baseUrl}/${id}`)
   }
 }

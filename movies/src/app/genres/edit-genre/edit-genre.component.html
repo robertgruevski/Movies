@@ -1,8 +1,1 @@
-<h2>Edit Genre</h2>
-
-@if(model) {
-    <app-display-errors [errors]="errors" />
-    <app-genres-form (postForm)="saveChanges($event)" [model]="model" />
-} @else {
-    <app-loading />
-}
+<app-edit-entity [formComponent]="genresForm" title="Edit Genre" [id]="id" indexRoute="/genres" />

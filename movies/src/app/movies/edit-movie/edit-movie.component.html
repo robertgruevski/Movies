@@ -1,5 +1,10 @@
 <h2>Edit Movie</h2>
 
-<app-movies-form [nonSelectedGenres]="nonSelectedGenres" [selectedGenres]="selectedGenres"
+@if (model) {
+
+    <app-movies-form [nonSelectedGenres]="nonSelectedGenres" [selectedGenres]="selectedGenres"
     [selectedTheaters]="selectedTheaters" [nonSelectedTheaters]="nonSelectedTheaters" [selectedActors]="selectedActors"
     [model]="model" (postForm)="saveChanges($event)" />
+} @else {
+    <app-loading />
+}

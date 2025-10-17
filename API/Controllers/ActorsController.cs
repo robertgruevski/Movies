@@ -2,7 +2,6 @@ using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Services;
-using API.Utilities;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ActorsController : ControllerBase
+
+public class ActorsController : CustomBaseController
 {
     private readonly ApplicationDbContext context;
     private readonly IMapper mapper;
@@ -22,7 +20,7 @@ public class ActorsController : ControllerBase
     private const string cacheTag = "actors";
     private readonly string container = "actors";
 
-    public ActorsController(ApplicationDbContext context, IMapper mapper, IOutputCacheStore outputCacheStore, IFileStorage fileStorgage)
+    public ActorsController(ApplicationDbContext context, IMapper mapper, IOutputCacheStore outputCacheStore, IFileStorage fileStorgage) : base(context, mapper, outputCacheStore, cacheTag)
     {
         this.context = context;
         this.mapper = mapper;
@@ -34,24 +32,22 @@ public class ActorsController : ControllerBase
     [OutputCache(Tags = [cacheTag])]
     public async Task<List<ActorDTO>> Get([FromQuery] PaginationDTO pagination)
     {
-        var queryable = context.Actors;
-        await HttpContext.InsertPaginationParametersInHeader(queryable);
-        return await queryable
-            .OrderBy(a => a.Name)
-            .Paginate(pagination)
-            .ProjectTo<ActorDTO>(mapper.ConfigurationProvider)
-            .ToListAsync();
+        return await Get<Actor, ActorDTO>(pagination, orderBy: a => a.Name);
     }
 
     [HttpGet("{id:int}", Name = "GetActorById")]
     [OutputCache(Tags = [cacheTag])]
     public async Task<ActionResult<ActorDTO>> Get(int id)
     {
-        var actor = await context.Actors.ProjectTo<ActorDTO>(mapper.ConfigurationProvider).FirstOrDefaultAsync(a => a.Id == id);
+        return await Get<Actor, ActorDTO>(id);
+    }
 
-        if (actor is null) return NotFound();
-
-        return actor;
+    [HttpGet("{name}")]
+    public async Task<ActionResult<List<MovieActorDTO>>> Get(string name)
+    {
+        return await context.Actors.Where(a => a.Name.Contains(name))
+            .ProjectTo<MovieActorDTO>(mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     [HttpPost]
@@ -103,7 +99,7 @@ public class ActorsController : ControllerBase
         await context.SaveChangesAsync();
 
         await outputCacheStore.EvictByTagAsync(cacheTag, default);
-        
+
         await fileStorage.Delete(actor.Picture, container);
 
         return NoContent();

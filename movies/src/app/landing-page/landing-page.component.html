@@ -1,7 +1,7 @@
 <h2>Upcoming releases</h2>
 
-<app-movies-list [movies]="upcomingReleases" />
+<app-movies-list [movies]="upcomingReleasesMovies" (deleted)="handleDelete()"/>
 
 <h2>In theaters</h2>
 
-<app-movies-list [movies]="inTheaters" />
+<app-movies-list [movies]="inTheatersMovies" (deleted)="handleDelete()"/>

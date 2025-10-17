@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using API.DTOs;
 using API.Validations;
 
 namespace API.Entities;
 
-public class Genre
+public class Genre : IId
 {
     public int Id { get; set; }
 
