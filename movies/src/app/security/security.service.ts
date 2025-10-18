@@ -1,8 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { AuthenticationResponseDTO, UserCredentialsDTO } from './security.models';
+import { AuthenticationResponseDTO, UserCredentialsDTO, UserDTO } from './security.models';
 import { Observable, tap } from 'rxjs';
+import { PaginationDTO } from '../shared/models/PaginationDTO';
+import { buildQueryParams } from '../shared/functions/buildQueryParams';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,22 @@ export class SecurityService {
     return this.http
       .post<AuthenticationResponseDTO>(`${this.baseUrl}/login`, credentials)
       .pipe(tap((authenticationResponse) => this.storeToken(authenticationResponse)));
+  }
+
+  makeAdmin(email: string) {
+    return this.http.post(`${this.baseUrl}/makeadmin`, { email });
+  }
+
+  removeAdmin(email: string) {
+    return this.http.post(`${this.baseUrl}/removeadmin`, { email });
+  }
+
+  getUsersPaginated(pagination: PaginationDTO): Observable<HttpResponse<UserDTO[]>> {
+    let queryParams = buildQueryParams(pagination);
+    return this.http.get<UserDTO[]>(`${this.baseUrl}/usersList`, {
+      params: queryParams,
+      observe: 'response',
+    });
   }
 
   storeToken(authenticationResponse: AuthenticationResponseDTO) {
@@ -60,6 +78,10 @@ export class SecurityService {
   }
 
   getRole(): string {
+    const isAdmin = this.getJWTClaim('isadmin');
+    if (isAdmin) {
+      return 'admin';
+    }
     return '';
   }
 }

@@ -2,11 +2,14 @@ using API.Data;
 using API.DTOs;
 using API.Entities;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace API.Controllers;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "isadmin")]
 public class TheatersController : CustomBaseController
 {
     private readonly ApplicationDbContext context;

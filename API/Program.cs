@@ -61,6 +61,10 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("isadmin", policy => policy.RequireClaim("isadmin"));
+});
 
 var app = builder.Build();
 

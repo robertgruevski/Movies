@@ -1,29 +1,50 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using API.Data;
 using API.DTOs;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "isadmin")]
+public class UsersController : CustomBaseController
 {
     private readonly UserManager<IdentityUser> userManager;
     private readonly SignInManager<IdentityUser> signInManager;
     private readonly IConfiguration configuration;
+    private readonly ApplicationDbContext context;
+    private readonly IOutputCacheStore outputCacheStore;
+    private readonly IMapper mapper;
+    private const string cacheTag = "users";
 
-    public UsersController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration)
+    public UsersController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration, ApplicationDbContext context, IOutputCacheStore outputCacheStore, IMapper mapper) : base(context, mapper, outputCacheStore, cacheTag)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
         this.configuration = configuration;
+        this.context = context;
+        this.outputCacheStore = outputCacheStore;
+        this.mapper = mapper;
+    }
+
+    [HttpGet("usersList")]
+    [OutputCache(Tags = [cacheTag])]
+    public async Task<ActionResult<List<UserDTO>>> GetUsers([FromQuery] PaginationDTO paginationDTO)
+    {
+        return await Get<IdentityUser, UserDTO>(paginationDTO, orderBy: u => u.Email!);
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<ActionResult<AuthenticationResponseDTO>> Register(UserCredentialsDTO userCredentialsDTO)
     {
         var user = new IdentityUser
@@ -36,6 +57,7 @@ public class UsersController : ControllerBase
 
         if (result.Succeeded)
         {
+            await outputCacheStore.EvictByTagAsync(cacheTag, default);
             return await BuildToken(user);
         }
         else
@@ -45,6 +67,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<ActionResult<AuthenticationResponseDTO>> Login(UserCredentialsDTO userCredentialsDTO)
     {
         var user = await userManager.FindByEmailAsync(userCredentialsDTO.Email);
@@ -66,6 +89,28 @@ public class UsersController : ControllerBase
             var errors = BuildIncorrectLoginErrorMessage();
             return BadRequest(errors);
         }
+    }
+
+    [HttpPost("makeadmin")]
+    public async Task<IActionResult> MakeAdmin(EditClaimDTO editClaimDTO)
+    {
+        var user = await userManager.FindByEmailAsync(editClaimDTO.Email);
+
+        if (user is null) return NotFound();
+
+        await userManager.AddClaimAsync(user, new Claim("isadmin", "true"));
+        return NoContent();
+    }
+
+    [HttpPost("removeadmin")]
+    public async Task<IActionResult> RemoveAdmin(EditClaimDTO editClaimDTO)
+    {
+        var user = await userManager.FindByEmailAsync(editClaimDTO.Email);
+
+        if (user is null) return NotFound();
+
+        await userManager.RemoveClaimAsync(user, new Claim("isadmin", "true"));
+        return NoContent();
     }
 
     private IEnumerable<IdentityError> BuildIncorrectLoginErrorMessage()

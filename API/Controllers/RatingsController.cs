@@ -43,6 +43,8 @@ public class RatingsController : ControllerBase
                 Rate = ratingCreationDTO.Rate,
                 UserId = userId
             };
+
+            context.Add(rating);
         }
         else
         {

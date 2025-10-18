@@ -2,11 +2,14 @@ using API.Data;
 using API.DTOs;
 using API.Entities;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace API.Controllers;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "isadmin")]
 public class GenresController : CustomBaseController
 {
     private readonly IOutputCacheStore outputCacheStore;
@@ -31,6 +34,7 @@ public class GenresController : CustomBaseController
 
     [HttpGet("all")]
     [OutputCache(Tags = [cacheTag])]
+    [AllowAnonymous]
     public async Task<ActionResult<List<GenreDTO>>> Get()
     {
         return await Get<Genre, GenreDTO>(orderBy: g => g.Name);
